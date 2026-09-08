@@ -26,7 +26,7 @@ def get_config(config_path: Path = Path("./.github/config.ini")) -> dict[str, st
 
 
 def fetch_page(api: str, token: str, start: str, end: str, seen: list[int]) -> dict:
-    query = {"start": start, "end": end, "limit": str(PER_PAGE), "group": "day"}
+    query = {"start": start, "end": end, "limit": str(PER_PAGE)}
     if seen:
         query["exclude_paths"] = [str(path_id) for path_id in seen]
     url = f"https://{api}/api/v0/stats/hits?{urlencode(query, doseq=True)}"
@@ -50,7 +50,7 @@ def main() -> None:
     config = get_config(Path(arguments.config))
     out = Path(arguments.out or config.get("manifest", "site/manifest.json")).with_name("stats.json")
     token = environ.get("GOATCOUNTER_TOKEN")
-    api = config.get("goatcounter", "")
+    api = config.get("goatcounter", "").strip().rstrip("/")
     if not api or not token:
         print("statsgen: GOATCOUNTER_TOKEN or goatcounter site missing; keeping existing stats", file=stderr)
         return
@@ -74,7 +74,8 @@ def main() -> None:
             if not data.get("more"):
                 break
     except HTTPError as error:
-        print(f"statsgen: GoatCounter API returned HTTP {error.code}; keeping existing stats", file=stderr)
+        body = error.read().decode("utf-8", "replace").strip()
+        print(f"statsgen: GoatCounter API returned HTTP {error.code} for {error.url}: {body}; keeping existing stats", file=stderr)
         return
     except Exception as error:
         print(f"statsgen: {error}; keeping existing stats", file=stderr)
