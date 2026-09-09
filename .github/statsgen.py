@@ -57,8 +57,8 @@ def main() -> None:
 
     prefix = config.get("stats_prefix", "/walls").rstrip("/")
     days = int(config.get("stats_days", "14"))
-    end = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:00")
-    start = (datetime.now(timezone.utc) - timedelta(days=days)).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:00")
+    end = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+    start = (datetime.now(timezone.utc) - timedelta(days=days)).replace(minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     stats: dict[str, int] = {}
     seen: list[int] = []
