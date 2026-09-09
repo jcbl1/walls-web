@@ -169,7 +169,7 @@ function disposeGrids(root) {
   root.querySelectorAll(".grid").forEach((node) => node.cleanupGrid?.());
 }
 
-function grid(files) {
+function grid(files, showViews = false) {
   const host = el("div", { class: "grid" });
   const row = el("div", { class: "grid-cols" });
   const sentinel = el("div", { class: "grid-sentinel" });
@@ -182,7 +182,13 @@ function grid(files) {
   const card = (file, position) =>
     el(
       "button",
-      { class: "card", type: "button", "aria-label": file.stem, onclick: () => openLightbox(files, position) },
+      {
+        class: "card",
+        type: "button",
+        "aria-label": file.stem,
+        title: showViews && file.views != null ? `${file.views} ${file.views === 1 ? "view" : "views"}` : null,
+        onclick: () => openLightbox(files, position),
+      },
       mediaNode(file, true, true)
     );
 
@@ -620,7 +626,7 @@ function viewPopular() {
       el("h2", { class: "page-title" }, "Popular"),
       el("span", { class: "muted" }, "top 60")
     ),
-    grid(ranked)
+    grid(ranked, true)
   );
 }
 
