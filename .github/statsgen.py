@@ -13,6 +13,7 @@ from urllib.request import Request, urlopen
 
 PER_PAGE = 100
 MAX_PAGES = 5
+TOP_N = 60
 VIEW_SEGMENT = "/w/"
 
 
@@ -62,7 +63,6 @@ def main() -> None:
 
     stats: dict[str, int] = {}
     seen: list[int] = []
-    pages = 0
     try:
         while len(seen) < MAX_PAGES * PER_PAGE:
             data = fetch_page(api, token, start, end, seen)
@@ -71,7 +71,9 @@ def main() -> None:
                 path = hit.get("path") or ""
                 if path.startswith(f"{prefix}{VIEW_SEGMENT}") and not hit.get("event"):
                     stats[path[len(prefix) + len(VIEW_SEGMENT):]] = hit.get("count", 0)
-            if not data.get("more"):
+                    if len(stats) >= TOP_N:
+                        break
+            if not data.get("more") or len(stats) >= TOP_N:
                 break
     except HTTPError as error:
         body = error.read().decode("utf-8", "replace").strip()
@@ -81,11 +83,13 @@ def main() -> None:
         print(f"statsgen: {error}; keeping existing stats", file=stderr)
         return
 
+    stats = dict(sorted(stats.items(), key=lambda item: item[1], reverse=True)[:TOP_N])
+
     if arguments.dry:
         print(dumps(stats, indent=2))
         return
     out.write_text(dumps(stats, indent=2, sort_keys=True) + "\n")
-    print(f"statsgen: wrote {out} ({len(stats)} wallpapers with views, window {start}..{end}, {len(seen)} paths fetched)")
+    print(f"statsgen: wrote {out} (top {len(stats)} wallpapers with views, window {start}..{end}, {len(seen)} paths fetched)")
 
 
 if __name__ == "__main__":
