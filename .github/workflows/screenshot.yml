@@ -1,0 +1,37 @@
+name: Screenshot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    name: Capture gallery screenshot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Chromium
+        run: npx --yes playwright@latest install --with-deps chromium
+      - name: Read site URL
+        id: site
+        run: |
+          url=$(python3 -c "import configparser; c = configparser.ConfigParser(); c.read('.github/config.ini'); print(dict(c['site']).get('site_url', ''))")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Capture screenshot
+        run: npx --yes playwright@latest screenshot --browser chromium --viewport-size "1440, 900" --wait-for-timeout 6000 "${{ steps.site.outputs.url }}" .github/assets/screenshot.png
+      - name: Commit
+        env:
+          COMMIT_MSG: |
+            [docs] Update gallery screenshot [skip ci]
+        run: |
+          git config user.email "actions@github"
+          git config user.name "Github Actions"
+          git add .github/assets/screenshot.png
+          git diff --quiet && git diff --staged --quiet || (git commit -m "${COMMIT_MSG}"; git push)
