@@ -28,7 +28,7 @@ async function ensureStats() {
     const stats = await res.json();
     for (const category of state.manifest.categories)
       for (const file of category.files)
-        if (file.views == null) file.views = stats[file.path] ?? null;
+        if (file.visits == null) file.visits = stats[file.path] ?? null;
   } catch {
     void 0;
   }
@@ -38,9 +38,9 @@ function allFiles() {
   return state.manifest.categories.flatMap((category) => category.files);
 }
 
-function hasViews() {
+function hasVisits() {
   return state.manifest.categories.some((category) =>
-    category.files.some((file) => file.views != null)
+    category.files.some((file) => file.visits != null)
   );
 }
 
@@ -169,7 +169,7 @@ function disposeGrids(root) {
   root.querySelectorAll(".grid").forEach((node) => node.cleanupGrid?.());
 }
 
-function grid(files, showViews = false) {
+function grid(files, showVisits = false) {
   const host = el("div", { class: "grid" });
   const row = el("div", { class: "grid-cols" });
   const sentinel = el("div", { class: "grid-sentinel" });
@@ -186,7 +186,7 @@ function grid(files, showViews = false) {
         class: "card",
         type: "button",
         "aria-label": file.stem,
-        title: showViews && file.views != null ? `${file.views} ${file.views === 1 ? "view" : "views"}` : null,
+        title: showVisits && file.visits != null ? `${file.visits} ${file.visits === 1 ? "visit" : "visits"}` : null,
         onclick: () => openLightbox(files, position),
       },
       mediaNode(file, true, true)
@@ -514,8 +514,8 @@ function viewCategory(name) {
 
   const apply = () => {
     let files = category.files.filter((f) => f.stem.toLowerCase().includes(filterText));
-    if (sortBy === "views")
-      files = files.slice().sort((a, b) => (b.views ?? -1) - (a.views ?? -1) || a.stem.localeCompare(b.stem));
+    if (sortBy === "visits")
+      files = files.slice().sort((a, b) => (b.visits ?? -1) - (a.visits ?? -1) || a.stem.localeCompare(b.stem));
     else if (sortBy === "random") files = shuffled(files, randomSeed);
     else files = files.slice().sort((a, b) => a.stem.localeCompare(b.stem));
     return files;
@@ -555,7 +555,7 @@ function viewCategory(name) {
       },
     },
     el("option", { value: "name" }, "Name"),
-    el("option", { value: "views" }, "Views"),
+    el("option", { value: "visits" }, "Visits"),
     el("option", { value: "random" }, "Random")
   );
 
@@ -600,7 +600,7 @@ function viewRandom(params) {
 }
 
 function viewPopular() {
-  if (!hasViews()) {
+  if (!hasVisits()) {
     return el(
       "section",
       null,
@@ -608,14 +608,14 @@ function viewPopular() {
       el(
         "div",
         { class: "panel placeholder" },
-        el("p", null, "No view data yet."),
-        el("p", { class: "muted" }, "Popularity tracking is not wired up yet. Once a stats source is connected, the most viewed wallpapers will be ranked here.")
+        el("p", null, "No visit data yet."),
+        el("p", { class: "muted" }, "Popularity tracking is not wired up yet. Once a stats source is connected, the most visited wallpapers will be ranked here.")
       )
     );
   }
   const ranked = allFiles()
-    .filter((file) => file.views != null)
-    .sort((a, b) => b.views - a.views)
+    .filter((file) => file.visits != null)
+    .sort((a, b) => b.visits - a.visits)
     .slice(0, 60);
   return el(
     "section",

@@ -54,6 +54,17 @@ jobs:
         run: ./.github/sitegen.py --ci
       - name: Generate thumbnails
         run: ./.github/thumbgen.py
+      - name: Restore previous stats
+        run: |
+          site_url=$(python3 -c "import configparser; c = configparser.ConfigParser(); c.read('.github/config.ini'); print(dict(c['site']).get('site_url', ''))")
+          if [ -n "$site_url" ]; then
+            tmp=$(mktemp)
+            if curl -fsS "${site_url%/}/stats.json" -o "$tmp"; then
+              mv "$tmp" site/stats.json
+            else
+              rm -f "$tmp"
+            fi
+          fi
       - name: Generate stats
         env:
           GOATCOUNTER_TOKEN: ${{ secrets.GOATCOUNTER_TOKEN }}
