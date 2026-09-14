@@ -14,7 +14,7 @@ from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
-MANIFEST_VERSION = 2
+MANIFEST_VERSION = 3
 
 EXIF_ORIENTATION_TAG = 0x0112
 EXIF_TRANSPOSED_ORIENTATIONS = (5, 6, 7, 8)
@@ -92,7 +92,7 @@ def entry(path: str, size: int, config: dict[str, str]) -> dict | None:
         "bytes": size,
         "width": dims[0] if dims else None,
         "height": dims[1] if dims else None,
-        "views": None,
+        "visits": None,
     }
 
 
