@@ -57,7 +57,7 @@ def handle_category(_, string: str, config: dict[str, str]) -> dict[str, str]:
 if __name__ == "__main__":
     CONFIG = get_config()
     primed = prime_templates(CONFIG, {"category.md": handle_category})
-    full_templates = ["heading", "sources", "conclusion"] # ordered
+    full_templates = ["heading", "local", "sources", "conclusion"] # ordered
     full_templates = [primed[f"{item}.md"] for item in full_templates]
     partial_template = primed["category.md"]
 
