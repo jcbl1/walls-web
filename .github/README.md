@@ -4,15 +4,6 @@ This README is auto-generated. You may view its source code [here](docgen.py).
 
 Browse the full gallery at <https://jcbl1.github.io/walls-web>.
 
-## Preview
-
-<details>
-<summary>Click to view a screenshot of the gallery</summary>
-
-![Gallery screenshot](assets/screenshot.png)
-
-</details>
-
 ## Running locally
 
 The gallery is a static site. Generate the manifest, then serve the repository root:
